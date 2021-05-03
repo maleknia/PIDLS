@@ -11,7 +11,6 @@ class MyHTMLParser(HTMLParser):
     record=False
     maxPage=1
     cnt=0
-    
     insideTheTable=False
     trn=0
     tdn=0
@@ -60,13 +59,13 @@ def getNames():
         res = conn.getresponse()
         txt=""
         buff=bytearray(1024)
-        j=1
-        while j>0:
-            j=res.readinto(buff)
-            txt+=buff[0:j].decode("utf-8") 
+        txt=str(res.read())
+
         conn.close()
         parser.feed(txt)
         pn+=1
+#        print(pn)
+        
     ret=[]
     for i in range(int(len(parser.fnames)/2)):
         ret.append((parser.fnames[i*2],parser.fnames[i*2+1]))
