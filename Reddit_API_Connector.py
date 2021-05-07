@@ -72,9 +72,29 @@ class ApiConnector:
             if FileSaveAs==None:
                 return topics_data
             else:
-                topics_data.to_csv('FileSaveAs', index=False) 
+                topics_data.to_csv(FileSaveAs, index=False) 
 
+"""
 
+    def getSubComments(comment, allComments, verbose=False):
+      allComments.append(comment)
+      if not hasattr(comment, "replies"):
+        replies = comment.comments()
+        if verbose: print("fetching (" + str(len(allComments)) + " comments fetched total)")
+      else:
+        replies = comment.replies
+      for child in replies:
+        getSubComments(child, allComments, verbose=verbose)
+    
+    
+    def getAll(r, submissionId, verbose=False):
+      submission = r.submission(submissionId)
+      comments = submission.comments
+      commentsList = []
+      for comment in comments:
+        getSubComments(comment, commentsList, verbose=verbose)
+      return commentsList
+"""
 
 
 
