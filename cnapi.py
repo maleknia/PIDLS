@@ -31,7 +31,7 @@ class MCData:
             elif type(res)==int:
                 break
             start+=len(res)
-            ldata.append(res)
+            ldata+=res
         if not error:
             self.data=ldata
             
@@ -90,4 +90,4 @@ class MCData:
 
 
 obj=MCData();
-data=obj.loadData()
+obj.loadData()
