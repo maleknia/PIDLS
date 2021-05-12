@@ -67,7 +67,7 @@ def getNames():
         
     ret=[]
     for i in range(int(len(parser.fnames)/2)):
-        ret.append((parser.fnames[i*2],parser.fnames[i*2+1]))
+        ret.append((parser.fnames[i*2].lower(),parser.fnames[i*2+1].lower()))
     return ret
 names=getNames()
 print(len(names))
