@@ -270,7 +270,6 @@ for comment in myReddit.stream.comments(skip_existing=True):
 
 
 
-#db = pymysql.connect(host='database-1.cnsb3deyhwc9.us-east-2.rds.amazonaws.com',user='admin',password='JcqwnD4cmP6FhX6J',charset='utf8', db = 'PIDLSDB', port = 3306)
 #cursor = db.cursor()
 #cursor.execute("drop table mentions" )
 #data = cursor.fetchall()
