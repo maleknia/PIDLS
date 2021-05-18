@@ -58,7 +58,6 @@ def getNames():
         conn.request("GET", page)
         res = conn.getresponse()
         txt=""
-        buff=bytearray(1024)
         txt=str(res.read())
 
         conn.close()
@@ -70,4 +69,5 @@ def getNames():
     for i in range(int(len(parser.fnames)/2)):
         ret.append((parser.fnames[i*2].lower(),parser.fnames[i*2+1].lower()))
     return ret
-#names=getNames()
+names=getNames()
+print(len(names))
