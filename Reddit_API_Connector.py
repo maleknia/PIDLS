@@ -11,6 +11,7 @@ Created on Wed Apr 21 23:51:15 2021
 import praw
 import pandas as pd
 import datetime as dt
+from praw.models import MoreComments
 
 class ApiConnector:
     
@@ -73,6 +74,20 @@ class ApiConnector:
                 return topics_data
             else:
                 topics_data.to_csv(FileSaveAs, index=False) 
+
+
+
+    
+    def RetriveRedditComment(RedditAgent=myReddit, redID = '7jrba2' ):
+        
+        #more info at https://praw.readthedocs.io/en/latest/tutorials/comments.html
+        
+        submission = RedditAgent.submission(redID)
+        submission.comments.replace_more(limit=None)        
+        return submission.comments.list()
+        #for comment in submission.comments.list():
+        #    print(comment.body)
+                
 
 """
 

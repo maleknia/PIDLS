@@ -8,7 +8,7 @@ Created on Sun May  2 21:35:01 2021
 #nltk.download("punkt")
 #nltk.download('twitter_samples')
 #nltk.download('stopwords')
-#nltk.download('wordnet')
+#nltk.download('wordnet').
 #nltk.download('averaged_perceptron_tagger')
 
 #import cn
@@ -35,71 +35,6 @@ import operator
 
 import csv
 
-start_time = time.time()
-myReddit = connector.ApiConnector.RetrieveRedditDF(ReadLimit=2000) #extracting posts
-print("--- %s seconds ---" % (time.time() - start_time))
-
-
-
-
-""" Running all comments in reddits
-
-def extractReditComments(listofReddits):
-    result = []
-    count = 0
-    for i in listofReddits:
-        
-        myComments = connector.ApiConnector.RetriveRedditComment( redID= i) #extracting comments for a whole Reddit
-        for comment in myComments:
-            parsed_date = datetime.utcfromtimestamp(comment.created_utc)
-            parsed_date = str(parsed_date.year)+'-'+str(parsed_date.month)+'-'+str(parsed_date.day)
-            if comment.body != '[removed]':
-                result.append([comment.body, parsed_date])
-        
-                
-        with open("Comments_"+str(count)+".csv", 'w',encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerows(result)
-        result = []
-        count += 1        
-        
-
-        
-    #return result
-                
-
-
-
-start_time = time.time()
-myComments = extractReditComments(myReddit['id'].tolist())
-print("--- %s seconds ---" % (time.time() - start_time))
-"""
-
-#myComments = extractReditComments(myReddit['id'].tolist())
-#myComments = connector.ApiConnector.RetriveRedditComment(redID='7jrba2')
-
-
-    
-
-#myReddit = connector.ApiConnector.RetrieveRedditDF(ReadLimit=2000,FileSaveAs="Cache1.csv")
-#myReddit = pd.read_csv('FileSaveAs.csv')
-#myCoinList = cn.getNames()
-
-### Getting  coin list
-myTemp = CMCConnector.getCoinNames()
-myCoinList =[]
-for coin in myTemp:
-    myCoinList.append([coin['name'].lower(),coin['symbol'].lower()])
-    
-
-    
-
-
-try:
-    myRedTitleList = myReddit['title'].tolist()
-    myRedBodyList = myReddit['body'].tolist()
-except:
-    None
 
 def removeURL(obj):
     try:
@@ -246,8 +181,128 @@ def runModelonTextList(model,textlist):
         print(result)
         yield [text,result]
 
-#Main
-stop_words = stopwords.words('english')
+
+
+def sentimentAnalysis(textList,inputStop_list):
+    myResult = []
+    for myEntity in textList:
+            myEntity = myEntity.lower()
+            myEntity_tokenized = tokenize(myEntity)    
+            myEntity_clean = remove_noise(myEntity_tokenized,stop_words)
+            myEntity_norlmalized = lemmatize_sentence(myEntity_clean)
+            #myEntity_for_model = get_text_ready_for_model_simpleEntity(myEntity_norlmalized)
+            #result = myClassifier.classify(myEntity_for_model)
+            myResult.append(myEntity_norlmalized)
+            
+    return myResult
+            
+
+def getAlltheWords (listofWords):
+    allwords = []
+    for tokens in listofWords:
+        if isinstance(tokens[1], Iterable): 
+            for token in tokens[1]:
+                allwords.append(token)
+                
+    return allwords
+
+def lowercaseList (listofCoins): #make it a lowercase
+    result =[]
+    for i in listofCoins:
+        result.append(i.lower())
+    return result
+        
+
+def getAlltheWordsthatareCoin (listofWords,listofCoins):
+    allwords = []
+    listofCoins = functools.reduce(operator.iconcat, listofCoins, []) #to make the coin list flat
+    listofCoins = lowercaseList(listofCoins)
+    for tokens in listofWords:
+        if isinstance(tokens[1], Iterable): 
+            for token in tokens[1]:
+                if token in listofCoins:
+                    allwords.append(token)
+                
+    return allwords
+
+
+def getCountofMentionedCoinsinComments (listofComments,listofCoins, returncoinnames = False):
+    #in list of comments first argument is TS and second is the comment
+    result = []
+#    listofCoins = functools.reduce(operator.iconcat, listofCoins, []) #to make the coin list flat
+#    listofCoins = lowercaseList(listofCoins)
+    for comment in listofComments:
+        count = 0
+        if isinstance(comment[1], Iterable): 
+            for word in comment[1]:
+                if word in listofCoins:
+                    count = count + 1
+                    
+        if returncoinnames:
+            result.append([listofCoins,comment[0],count])
+        else:
+            result.append([comment[0],count])
+                
+    return result
+
+
+def getTheTotalCountofCountedCoins(myCoinList, freq_dist_pos):
+    result = []
+    for words in myCoinList:
+        count = 0
+        try:
+            count = freq_dist_pos[words[0]]
+            count = count + freq_dist_pos[words[0]]
+            result.append([words[0],words[1],count])
+        except:
+            None
+    return result
+
+
+""" Running all comments in reddits
+
+def extractReditComments(listofReddits):
+    result = []
+    count = 0
+    for i in listofReddits:
+        
+        myComments = connector.ApiConnector.RetriveRedditComment( redID= i) #extracting comments for a whole Reddit
+        for comment in myComments:
+            parsed_date = datetime.utcfromtimestamp(comment.created_utc)
+            parsed_date = str(parsed_date.year)+'-'+str(parsed_date.month)+'-'+str(parsed_date.day)
+            if comment.body != '[removed]':
+                result.append([comment.body, parsed_date])
+        
+                
+        with open("Comments_"+str(count)+".csv", 'w',encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerows(result)
+        result = []
+        count += 1        
+        
+
+        
+    #return result
+                
+
+
+
+start_time = time.time()
+myComments = extractReditComments(myReddit['id'].tolist())
+print("--- %s seconds ---" % (time.time() - start_time))
+"""
+
+#myComments = extractReditComments(myReddit['id'].tolist())
+#myComments = connector.ApiConnector.RetriveRedditComment(redID='7jrba2')
+
+
+    
+
+#myReddit = connector.ApiConnector.RetrieveRedditDF(ReadLimit=2000,FileSaveAs="Cache1.csv")
+#myReddit = pd.read_csv('FileSaveAs.csv')
+#myCoinList = cn.getNames()
+
+
 
 """
 myRedbodyTokens = tokenize(myRedBodyList)
@@ -268,11 +323,9 @@ myRedTitle_for_model = get_text_ready_for_model(myRedtitle_Tokens_Normal_Clean)
 #all_pos_words = get_all_words(myRedBody_Clean)
 #freq_dist_pos = FreqDist(all_pos_words)
 
-       
+     
 #Trainig positive negative based on positive negative tweets
-
-
-
+"""  
 positive_tweet_tokens = tokenize(twitter_samples.strings('positive_tweets.json'))
 negative_tweet_tokens = tokenize(twitter_samples.strings('negative_tweets.json'))
 
@@ -314,54 +367,111 @@ print(myClassifier.show_most_informative_features(10))
 
 #resulty = runModelonTextList(myClassifier, myRedBody_for_model)
 
-
-
-def sentimentAnalysis(textList,inputStop_list):
-    myResult = []
-    for myEntity in textList:
+"""
+            
     
-            myEntity_tokenized = tokenize(myEntity)    
-            myEntity_clean = remove_noise(myEntity_tokenized,stop_words)
-            myEntity_norlmalized = lemmatize_sentence(myEntity_clean)
-            myEntity_for_model = get_text_ready_for_model_simpleEntity(myEntity_norlmalized)
-            result = myClassifier.classify(myEntity_for_model)
-            myResult.append([result,myEntity_for_model,myEntity])
-            
-    return myResult
-            
 
-def getAlltheWords (listofWords):
-    allwords = []
-    for tokens in listofWords:
-        if isinstance(tokens[1], Iterable): 
-            for token in tokens[1]:
-                allwords.append(token)
-                
-    return allwords
+#myResultBody = sentimentAnalysis(myRedBodyList,stop_words)
+#myResultTitle = sentimentAnalysis(myRedTitleList,stop_words)
 
-def lowercaseList (listofCoins): #make it a lowercase
-    result =[]
-    for i in listofCoins:
-        result.append(i.lower())
-    return result
+
+
+
+#Main
+
+stop_words = stopwords.words('english')
+
+start_time = time.time()
+#myReddit = connector.ApiConnector.RetrieveRedditDF(ReadLimit=2000) #extracting posts
+print("--- %s seconds to load Reddit ---" % (time.time() - start_time))
+
+
+### Getting  coin list
+myTemp = CMCConnector.getCoinNames()
+myCoinList =[]
+for coin in myTemp:
+    myCoinList.append([coin['name'].lower(),coin['symbol'].lower()])
+
+start_time = time.time()
+myRedditComments = pd.read_csv('all.csv')
+myRedditComments.columns = ['comment', 'TS']
+myRedComments = myRedditComments[~myRedditComments['comment'].isnull()]
+myRedComments = myRedditComments[~myRedditComments['TS'].isnull()]
+myRedComments['TS']= myRedComments['TS'].astype(str)
+myRedComments['comment']= myRedComments['comment'].astype(str)
+
+print (myRedComments.dtypes)
+
+myRedComments['txt2']= myRedComments.groupby(['TS'])['comment'].transform(lambda x: ' '.join(x))
+myRedGrp = myRedComments[['TS','txt2']].drop_duplicates()
+
+
+myTokenizedList = sentimentAnalysis(myRedGrp['txt2'].tolist(),stopwords)
+
+myTSTokenizedList = []
+for TS, comment in zip(myRedGrp['TS'],myTokenizedList):
+    myTSTokenizedList.append([TS,comment])
+    
+
+''' getting files for better visualization"
+ScottResult = []
+
+for coinin in myCoinList:
+    print (coinin)
+    myResult = getCountofMentionedCoinsinComments(myTSTokenizedList,coinin,True)    
+    ScottResult.append(myResult)
+    
+
+import numpy as np
+ScottSmall = []
+count = 0
+count2 = 0
+'''
+
+
+for miniScott in ScottResult:
+    for miniScott2 in miniScott:
+        
+        ScottSmall.append([miniScott2[0][0],miniScott2[0][1],miniScott2[1],miniScott2[2]])   
+        count += 1
+    
+    if count>900000:
+        count2 +=1        
+        np.savetxt('Scotts{}.csv'.format(count2),ScottSmall, delimiter = ',', fmt='% s',encoding='utf8')
+        count = 0 
+        ScottSmall = []
         
 
-def getAlltheWordsthatareCoin (listofWords,listofCoins):
-    allwords = []
-    listofCoins = functools.reduce(operator.iconcat, listofCoins, []) #to make the coin list flat
-    listofCoins = lowercaseList(listofCoins)
-    for tokens in listofWords:
-        if isinstance(tokens[1], Iterable): 
-            for token in tokens[1]:
-                if token in listofCoins:
-                    allwords.append(token)
-                
-    return allwords
-            
+
+with open("shib.csv", 'w',encoding="utf-8") as f:
+     writer = csv.writer(f)
+     writer.writerows(myResult)
+
+
     
 
-myResultBody = sentimentAnalysis(myRedBodyList,stop_words)
-myResultTitle = sentimentAnalysis(myRedTitleList,stop_words)
+""" 
+
+
+try:
+    myRedTitleList = myReddit['title'].tolist()
+    myRedBodyList = myReddit['body'].tolist()
+except:
+    None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 allwords = getAlltheWords(myResultBody)
@@ -376,21 +486,8 @@ listofCoins = functools.reduce(operator.iconcat, myCoinList, []) #to make the co
 
 #listofCoins = lowercaseList(myCoinList)
 
-freq_dist_pos = FreqDist(allwords)# finds the frequecy of coins
+#freq_dist_pos = FreqDist(allwords)# finds the frequecy of coins
 
-
-
-def getTheTotalCountofCountedCoins(myCoinList, freq_dist_pos):
-    result = []
-    for words in myCoinList:
-        count = 0
-        try:
-            count = freq_dist_pos[words[0]]
-            count = count + freq_dist_pos[words[0]]
-            result.append([words[0],words[1],count])
-        except:
-            None
-    return result
 
 
 result = []
@@ -424,7 +521,7 @@ with open("needstoclean.csv", 'w',encoding="utf-8") as f:
 
 
         
-""" 
+
 index = 0
 result_list = []
 for text in myRedBody_for_model:
